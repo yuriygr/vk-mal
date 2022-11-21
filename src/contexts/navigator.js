@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import { DefaultNavigationState } from "../services/const"
-import { func } from 'prop-types'
 
 const NavigationContext = React.createContext(null)
 
@@ -9,7 +8,7 @@ const NavigationContext = React.createContext(null)
  * Моя собственная реализация навигации между экртанами.
  * Да, не идеально, но мои потребности покрывает на все сто, о о о.
  * 
- * @vesion 1.0.2
+ * @vesion 1.0.4
  */
 export const NavigationProvider = ({ children }) => {
   // История -- главная штука. Внутри нее происходят уже смены View и Panels внутри View
@@ -64,6 +63,24 @@ export const NavigationProvider = ({ children }) => {
     setActiveModal(_modal)
   }
 
+  /**
+   * Получает активную вьюшку в Истории
+   * @param {string} _story Нужная история. Если нету - используем акттивную
+   * @returns {string}
+   */
+  const activeView = (_story = activeStory) => {
+    return activeViews[_story]
+  }
+
+  /**
+   * Получает активную панель во Вьюшке
+   * @param {string} _view Нужная вьюшка. Если нету - используем акктивную
+   * @returns {string}
+   */
+  const activePanel = (_view = activeView(activeStory)) => {
+    return activePanels[_view]
+  }
+
   const modalBack = () => {
     openModal(modalHistory[modalHistory.length - 2])
   };
@@ -76,13 +93,11 @@ export const NavigationProvider = ({ children }) => {
     <NavigationContext.Provider
       value={{
         activeStory,
-        activeViews,
-        activePanels,
-
-        // Модальные окна
+        activeView,
+        activePanel,
         activeModal,
 
-        // Методы роутинга
+        // Методы Навигации по приложению
         go,
         openModal,
         modalBack,

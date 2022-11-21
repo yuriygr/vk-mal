@@ -182,22 +182,22 @@ const App = () => {
     <Tabbar>
       <TabbarItem
         onClick={() => navigations.go(Stories.Main, Views.Main.Overview, Panels.Main.Overview.Main)}
-        selected={navigations.activeViews[Stories.Main] === Views.Main.Overview}
+        selected={navigations.activeView(Stories.Main) === Views.Main.Overview}
         text="Обзор"
       ><Icon28GridLayoutOutline /></TabbarItem>
       <TabbarItem
         onClick={() => navigations.go(Stories.Main, Views.Main.Search, Panels.Main.Search.Main)}
-        selected={navigations.activeViews[Stories.Main] === Views.Main.Search}
+        selected={navigations.activeView(Stories.Main) === Views.Main.Search}
         text="Поиск"
       ><Icon28SearchStarsOutline /></TabbarItem>
       <TabbarItem
         onClick={() => navigations.go(Stories.Main, Views.Main.List, Panels.Main.List.Main)}
-        selected={navigations.activeViews[Stories.Main] === Views.Main.List}
+        selected={navigations.activeView(Stories.Main) === Views.Main.List}
         text="Список"
       ><Icon28ListBulletSquareOutline /></TabbarItem>
       <TabbarItem
         onClick={() => navigations.go(Stories.Main, Views.Main.Etc, Panels.Main.Etc.Main)}
-        selected={navigations.activeViews[Stories.Main] === Views.Main.Etc}
+        selected={navigations.activeView(Stories.Main) === Views.Main.Etc}
         text="Еще"
       ><Icon28MoreHorizontal /></TabbarItem>
     </Tabbar>
@@ -264,8 +264,8 @@ const App = () => {
           <SplitLayout modal={modal} popout={popout}>
 
             <View activePanel={navigations.activeStory}>
-              <Epic id={Stories.Main} activeStory={navigations.activeViews[Stories.Main]} tabbar={mainTabbar}>
-                <View id={Views.Main.Overview} activePanel={navigations.activePanels[Views.Main.Overview]}>
+              <Epic id={Stories.Main} activeStory={navigations.activeView(Stories.Main)} tabbar={mainTabbar}>
+                <View id={Views.Main.Overview} activePanel={navigations.activePanel(Views.Main.Overview)}>
                   <Panel id={Panels.Main.Overview.Main}>
                     <PanelHeader separator={false} before={
                       <PanelHeaderButton aria-label="Что посмотреть" onClick={() => navigations.go(Stories.Main, Views.Main.Overview, Panels.Main.Overview.Suggest)}><Icon28MagicWandOutline /></PanelHeaderButton>
@@ -306,7 +306,7 @@ const App = () => {
                   <SuggestPanel id={Panels.Main.Overview.Suggest} methods={_methods} />
                 </View>
           
-                <View id={Views.Main.Search} activePanel={navigations.activePanels[Views.Main.Search]}>
+                <View id={Views.Main.Search} activePanel={navigations.activePanel(Views.Main.Search)}>
                   <Panel id={Panels.Main.Search.Main}>
                     <PanelHeader separator={false}>Поиск</PanelHeader>
                     <Search
@@ -332,7 +332,7 @@ const App = () => {
                   </Panel>
                 </View>
           
-                <View id={Views.Main.List} activePanel={navigations.activePanels[Views.Main.List]}>
+                <View id={Views.Main.List} activePanel={navigations.activePanel(Views.Main.List)}>
                   <Panel id={Panels.Main.List.Main}>
                     <PanelHeader separator={false}>
                       <PanelHeaderContent
@@ -390,7 +390,7 @@ const App = () => {
                   </Panel>
                 </View>
 
-                <View id={Views.Main.Etc} activePanel={navigations.activePanels[Views.Main.Etc]}>
+                <View id={Views.Main.Etc} activePanel={navigations.activePanel(Views.Main.Etc)}>
                   <Panel id={Panels.Main.Etc.Main}>
                     <PanelHeader separator={false}>Еще</PanelHeader>
                     <Group>
@@ -423,7 +423,7 @@ const App = () => {
               
               <SecretStory id={Stories.Secret} methods={_methods} />
               <TitleStory  id={Stories.Title}  methods={_methods}
-                activeView={navigations.activeViews[Stories.Title]}
+                activeView={navigations.activeView(Stories.Title)}
                 data={activeTitle}
               />
             </View>
