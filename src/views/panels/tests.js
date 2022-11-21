@@ -17,6 +17,7 @@ const TestsPanel = ({ methods }) => {
     user.setUser({ test: 'test' })
     preferences.setLanguage('english')
     preferences.setDebug(true)
+    preferences.setAppearance(preferences.appearance == 'light' ? 'dark' : 'light')
   }
 
   return (

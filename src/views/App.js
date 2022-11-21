@@ -64,6 +64,12 @@ const App = () => {
     setPopout(popout)
   }
 
+  const handleFetchError = (error) => {
+    setError(error)
+    setFetching(false)
+    setPopout(null)
+  }
+
   // Смотрим за событиями моста
   const watchBridge = () => {
     bridge.subscribe((e) => {
@@ -89,11 +95,7 @@ const App = () => {
       setFetching(false)
       setPopout(null)
     })
-    .catch(error => {
-      setError(error)
-      setFetching(false)
-      setPopout(null)
-    })
+    .catch(handleFetchError)
   }
 
   // Загрузка списка
@@ -111,11 +113,7 @@ const App = () => {
       setFetching(false)
       setPopout(null)
     })
-    .catch(error => {
-      setError(error)
-      setFetching(false)
-      setPopout(null)
-    })
+    .catch(handleFetchError)
   }
 
   // Открытие панели с тайтлом
@@ -134,16 +132,14 @@ const App = () => {
     setListContextOpened(!listContextOpened)
   }
 
-  const changeListTab = async (key) => {
+  const changeListTab = (key) => {
     setActiveListTab(key)
-    fetchList()
   }
 
-  const changeListType = async (key) => {
+  const changeListType = (key) => {
     setActiveListType(key)
     setActiveListTabs(listTabs[key])
     setActiveListTab('all')
-    fetchList()
 
     requestAnimationFrame(toggleListContext)
   }
@@ -151,9 +147,11 @@ const App = () => {
   useEffect(() => {
     watchBridge()
     fetchOverview()
-    fetchList()
   }, [])
 
+  useEffect(() => {
+    fetchList()
+  }, [activeListTab, activeListType])
 
   const changeSearchQuery = (e) => {
     setSearchQuery(e.target.value)
@@ -163,11 +161,7 @@ const App = () => {
       setFetching(false)
       setPopout(null)
     })
-    .catch(error => {
-      setError(error)
-      setFetching(false)
-      setPopout(null)
-    })
+    .catch(handleFetchError)
   }
 
   const refreshOverview = async () => {

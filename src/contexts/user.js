@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
-import bridge from '@vkontakte/vk-bridge'
+import { useEffect } from 'react'
 
 const UserContext = React.createContext(null)
 
@@ -8,15 +8,14 @@ export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [authData, setAuthData] = useState(null)
 
-  const saveAuthData = data =>
-    bridge
-      .send('VKWebAppStorageSet', {
-        key: 'accessToken',
-        value: JSON.stringify(data),
-      })
-      .then(({ result }) => {
-        if (result) setAuthData(data);
-      });
+  const fetchUser = () => {
+    const params = window.location.search.slice(1)
+    console.log(params)
+  }
+
+  useEffect(() => {
+
+  }, [])
 
   return (
     <UserContext.Provider
@@ -24,8 +23,8 @@ export const UserProvider = ({ children }) => {
         user,
         setUser,
         authData,
-        saveAuthData,
         setAuthData,
+        fetchUser
       }}
     >
       {children}

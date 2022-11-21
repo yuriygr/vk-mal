@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
-import bridge from '@vkontakte/vk-bridge'
 
 const PreferencesContext = React.createContext(null)
 
