@@ -47,13 +47,13 @@ const ModalPageTitleEdit = ({ type = 'add', data, goBack }) => {
       }
     >
       <Group header={<Header>Статус</Header>}>
-        <Tabs mode="accent">
-          <HorizontalScroll>
+        <HorizontalScroll>
+          <Tabs mode="accent">
             { types[TABS_ANIME].filter(i => i.key !== 'all').map(tab =>
               <TabsItem aria-controls={tab.label} selected={tab.key === data.list} key={tab.key}>{tab.label}</TabsItem>
             ) }
-          </HorizontalScroll>
-        </Tabs>
+          </Tabs>
+        </HorizontalScroll>
       </Group>
       <Group header={<Header>Прогресс</Header>}>
         <FormItem>

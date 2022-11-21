@@ -1,9 +1,12 @@
 import React from 'react';
 import { Title, Subhead, Card, Progress, Paragraph } from '@vkontakte/vkui';
 import { Icon12Favorite } from '@vkontakte/icons';
+import formatEntry from  "../../services/format"
 
 const TitleListItem = ({ data, onClick } ) => {
-  const cardStyle = {
+  const entry = formatEntry(data)
+
+  const cardStyle = {  
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'flex-start',
@@ -16,39 +19,38 @@ const TitleListItem = ({ data, onClick } ) => {
     borderRadius: 'var(--vkui--size_card_border_radius--regular, 8px)'
   }
 
-  const date = "2007"
+    
+  const subhead = () => {
+    let _r = []
 
-  const cover = "https://cdn.myanimelist.net/r/192x272/images/anime/12/39497.webp?s=0ae299ba10f68551842e8b3108a498f5"
+    if (entry.type) {
+      _r.push(entry.type)
+    }
 
-  const name = 
-     data.names.russian_name !== "" ? data.names.russian_name : ( 
-      data.names.english_name !== "" ? data.names.english_name : (
-        data.names.japanese_name !== "" ? data.names.japanese_name : "error"
-      )
-    )
-  
+    if (entry.premiered()) {
+      _r.push(entry.premiered())
+    }
 
-  const progress = () => {
-    return (data.series.viewed / data.series.total) * 100
+    return _r.join(", ")
   }
 
   return (
     <Card style={{ padding: '0.5rem', userSelect: 'none' }} mode="shadow" onClick={onClick}>
       <div style={cardStyle}>
-        <div><img style={coverStyle} src={cover} alt={name} /></div>
+        <div><img style={coverStyle} src={entry.cover()} alt={entry.name()} /></div>
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative' }}>
           <div style={{ marginBottom: '0.5rem' }}>
-            <Title level="3" style={{ wordBreak: 'break-word' }}>{name}</Title>
-            <Subhead>{data.type}, {date}</Subhead>
+            <Title level="3" style={{ wordBreak: 'break-word' }}>{entry.name()}</Title>
+            <Subhead>{subhead()}</Subhead>
           </div>
           <div style={{ marginTop: 'auto' }}>
             <Paragraph style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px', fontSize: 'var(--vkui--font_headline2--font_size--compact)' }}>
               <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', fontWeight: 'bold' }}>
-                <Icon12Favorite style={{ marginRight: 2 }} /> {data.rating.my}
+                <Icon12Favorite style={{ marginRight: 2 }} /> {entry.rating.my}
               </div>
-              <div>{data.series.viewed + '/' + data.series.total}</div>
+              <div>{entry.series.viewed + '/' + entry.series.total}</div>
             </Paragraph>
-            <Progress value={progress()} />
+            <Progress value={entry.progress()} />
           </div>
         </div>
       </div>

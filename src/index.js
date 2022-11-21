@@ -5,6 +5,7 @@ import * as serviceWorker from './serviceWorker'
 import bridge from '@vkontakte/vk-bridge'
 import { UserProvider } from './contexts/user'
 import { PreferencesProvider } from './contexts/preferences'
+import { NavigationProvider } from './contexts/navigator'
 
 bridge.send("VKWebAppInit")
 bridge.subscribe((e) => {
@@ -22,7 +23,9 @@ bridge.subscribe((e) => {
 ReactDOM.render(
   <UserProvider>
     <PreferencesProvider>
-      <App />
+      <NavigationProvider>
+        <App />
+      </NavigationProvider>
     </PreferencesProvider>
   </UserProvider>
 , document.getElementById('root'))

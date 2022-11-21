@@ -5,67 +5,15 @@ import {
   PanelHeaderBack,
   Link, Avatar, Title, calcInitialsAvatarColor, MiniInfoCell, Card, Button, Placeholder, CellButton, List, Footer
 } from '@vkontakte/vkui';
-import { Icon20CalendarOutline, Icon20InfoCircleOutline, Icon20Users3Outline, Icon20FollowersOutline, Icon20FolderOutline, Icon24AddOutline, Icon24PenOutline, Icon24ExternalLinkOutline } from '@vkontakte/icons';
+import { Icon20CalendarOutline, Icon20InfoCircleOutline, Icon20Users3Outline, Icon20FollowersOutline, Icon20FolderOutline, Icon24AddOutline, Icon24PenOutline, Icon24ExternalLinkOutline, Icon20TicketOutline } from '@vkontakte/icons';
 
-import { Stories, Views, TITLE_EDIT_MODAL } from  "../../services/const";
+import { Stories, Views, TITLE_EDIT_MODAL } from  "../../services/const"
+import formatEntry from  "../../services/format"
 import PreferencesContext from '../../contexts/preferences'
 
 const TitleStory = ({ activeView, data, methods = {} }) => {
   const preferences = useContext(PreferencesContext)
-
-  const cover = "https://cdn.myanimelist.net/r/192x272/images/anime/12/39497.webp?s=0ae299ba10f68551842e8b3108a498f5"
-
-  const name = (lang) => {
-    return data.names.english_name
-  }
-
-  // На самом деле это пиздец, но переделывать я не хочу. Это надо бэкэнд ковырять,
-  // а я не умею там сложно чет эти unmarshal json
-  const _companies = data.companies || []
-  const _communities = data.communities || []
-  const _authors = [
-    { id: 154645, letters: 'НК', subtitle: 'Режиссер, Художник', name: 'Никита Изумрудов' },
-    { id: 564564, letters: 'ВК', subtitle: 'Художник', name: 'Влада Клименко' },
-    { id: 456456, letters: 'ПН', subtitle: 'Режиссер', name: 'Петр Налич' },
-  ]
-  const _statistic = data.statistic || []
-  const _ext_links = data.ext_links || []
-
-  // Самая странная конструкция?
-  // Чтобы вы понимали, я не горжусь этой хуитой!
-  const companies = () => {
-    let arr = {}
-    let companies = data.companies || []
-    companies.forEach(item =>
-      arr[item.role] ? arr[item.role].push(item) : arr[item.role] = [item]
-    )
-    return arr
-  }
-  const companies_names = (role) => {
-    let arr = {}
-    let companies = data.companies || []
-    companies.forEach(item =>
-      arr[item.role] ? arr[item.role].push(item) : arr[item.role] = [item]
-    )
-    return (arr[role] || []).map(item => item.names.english_name).join(" · ")
-  }
-  const genres = () => {
-    let arr = {}
-    let genres = data.genres || []
-    genres.forEach(item =>
-      arr[item.category] ? arr[item.category].push(item) : arr[item.category] = [item]
-    )
-    return arr
-  }
-  const genres_names = (category) => {
-    let arr = {}
-    let genres = data.genres || []
-    genres.forEach(item =>
-      arr[item.category] ? arr[item.category].push(item) : arr[item.category] = [item]
-    )
-    return (arr[category] || []).map(item => item.names.english_name).join(" · ")
-  }
-
+  const entry = formatEntry(data)
 
   const openPanel = (view) => {
     methods.go(Stories.Title, view)
@@ -83,6 +31,15 @@ const TitleStory = ({ activeView, data, methods = {} }) => {
     const _key = 'company-' + item.role + '-' + item.company_id 
     return (
       <SimpleCell disabled key={_key} before={<Avatar size={36}></Avatar>} subtitle={item.role}>
+        {item.names.english_name}
+      </SimpleCell>
+    )
+  }
+
+  const genreCell = (item) => {
+    const _key = 'genre-' + item.category + '-' + item.genre_id
+    return (
+      <SimpleCell disabled key={_key} before={<Avatar size={36}></Avatar>} subtitle={item.category}>
         {item.names.english_name}
       </SimpleCell>
     )
@@ -126,25 +83,25 @@ const TitleStory = ({ activeView, data, methods = {} }) => {
         >Подробнее</PanelHeader>
         <Group>
           <Title level="2" style={{ textAlign: 'center', marginBottom: 12 }}>
-            {name()}
+            {entry.name()}
           </Title>
 
           <div style={{ display: 'grid', gridTemplateColumns: '50% 50%', padding: '0 var(--vkui--size_base_padding_horizontal--regular)' }}>
             <div>
-              <img style={{ width: '100%', borderRadius: 'var(--vkui--size_card_border_radius--regular, 8px)', boxShadow: 'var(--vkui--elevation3, 0 2px 24px 0 rgba(0, 0, 0, 0.08), 0 0 2px 0 rgba(0, 0, 0, 0.08) )', marginBottom: 10 }} src={cover} alt={name()} />
-              <Button stretched before={data.list === '' ? <Icon24AddOutline /> : <Icon24PenOutline />} mode="outline" size="m" onClick={openEditModal}>
-                { data.list === '' ? 'Добавить' : 'Изменить' }
+              <img style={{ width: '100%', borderRadius: 'var(--vkui--size_card_border_radius--regular, 8px)', boxShadow: 'var(--vkui--elevation3, 0 2px 24px 0 rgba(0, 0, 0, 0.08), 0 0 2px 0 rgba(0, 0, 0, 0.08) )', marginBottom: 10 }} src={entry.cover()} alt={entry.name()} />
+              <Button stretched before={entry.list === '' ? <Icon24AddOutline /> : <Icon24PenOutline />} mode="outline" size="m" onClick={openEditModal}>
+                { entry.list === '' ? 'Добавить' : 'Изменить' }
               </Button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', paddingLeft: 12 }}>
               <div>
                 <Card mode="shadow" style={{ padding: 12, marginBottom: 12 }}>
-                  <div style={{ fontWeight: 'bold', fontSize: '2.75rem', color: 'var(--vkui--color_accent_green)', textAlign: 'center' }}>{data.rating.global}</div>
-                  <div style={{ textAlign: 'center' }}>Моя оценка <span>{data.rating.my}</span></div>
+                  <div style={{ fontWeight: 'bold', fontSize: '2.75rem', color: 'var(--vkui--color_accent_green)', textAlign: 'center' }}>{entry.rating.global}</div>
+                  <div style={{ textAlign: 'center' }}>Моя оценка <span>{entry.rating.my}</span></div>
                 </Card>
-                {data.series &&
+                {entry.series &&
                   <Card mode="shadow">
-                    {data.series.viewed} / {data.series.total}
+                    {entry.series.viewed} / {entry.series.total}
                   </Card>
                 }
               </div>
@@ -154,43 +111,51 @@ const TitleStory = ({ activeView, data, methods = {} }) => {
         </Group>
 
         <Group>
-          <MiniInfoCell before={<Icon20FollowersOutline />} textWrap="full">
-            Статус: {data.status}
+          { entry.airing_status() &&
+            <MiniInfoCell before={<Icon20FollowersOutline />} textWrap="full">
+              Статус: {entry.airing_status()}
+            </MiniInfoCell>
+          }
+          { entry.premiered() &&
+            <MiniInfoCell before={<Icon20TicketOutline />} textWrap="full">
+              Премьера: {entry.premiered()}
+            </MiniInfoCell>
+          }
+          <MiniInfoCell before={<Icon20InfoCircleOutline />} textWrap="full">
+            Тип: {entry.type}
           </MiniInfoCell>
           <MiniInfoCell before={<Icon20InfoCircleOutline />} textWrap="full">
-            Тип: {data.type}
+            Источник: {entry.source}
           </MiniInfoCell>
-          <MiniInfoCell before={<Icon20InfoCircleOutline />} textWrap="full">
-            Источник: {data.source}
-          </MiniInfoCell>
-          <MiniInfoCell before={<Icon20CalendarOutline />} textWrap="full">
-            Период выхода: {data.date} - {data.date}
-          </MiniInfoCell>
-
-          { (companies_names('studio') !== '' || companies_names('producer') !== '' || companies_names('licensor') !== '') &&
+          { entry.airing_dates() &&
+            <MiniInfoCell before={<Icon20CalendarOutline />} textWrap="full">
+              Период выхода: {entry.airing_dates()}
+            </MiniInfoCell>
+          }
+          { (entry.flat_companies('studio') !== '' || entry.flat_companies('producer') !== '' || entry.flat_companies('licensor') !== '') &&
           <MiniInfoCell before={<Icon20Users3Outline />} textWrap="full">
-            { companies_names('studio') !== '' &&
-              <div>Студия: { companies_names('studio') }</div>
+            { entry.flat_companies('studio') !== '' &&
+              <div>Студия: { entry.flat_companies('studio') }</div>
             }
-            { companies_names('producer') !== '' &&
-              <div>Продюсер: { companies_names('producer') }</div>
+            { entry.flat_companies('producer') !== '' &&
+              <div>Продюсер: { entry.flat_companies('producer') }</div>
             }
-            { companies_names('licensor') !== '' &&
-              <div>Лицензатор: { companies_names('licensor') }</div>
+            { entry.flat_companies('licensor') !== '' &&
+              <div>Лицензатор: { entry.flat_companies('licensor') }</div>
             }
           </MiniInfoCell>
           }
 
-          { (genres_names('genre') !== '' || genres_names('theme') !== '' || genres_names('demographic') !== '') &&
+          { (entry.flat_genres('genre') !== '' || entry.flat_genres('theme') !== '' || entry.flat_genres('demographic') !== '') &&
           <MiniInfoCell before={<Icon20FolderOutline />} textWrap="full">
-            { genres_names('genre') !== '' &&
-              <div>Жанр: { genres_names('genre') }</div>
+            { entry.flat_genres('genre') !== '' &&
+              <div>Жанр: { entry.flat_genres('genre') }</div>
             }
-            { genres_names('theme') !== '' &&
-              <div>Тема: { genres_names('theme') }</div>
+            { entry.flat_genres('theme') !== '' &&
+              <div>Тема: { entry.flat_genres('theme') }</div>
             }
-            { genres_names('demographic') !== '' &&
-              <div>Возрастная категория: { genres_names('demographic') }</div>
+            { entry.flat_genres('demographic') !== '' &&
+              <div>Возрастная категория: { entry.flat_genres('demographic') }</div>
             }
           </MiniInfoCell>
           }
@@ -203,31 +168,31 @@ const TitleStory = ({ activeView, data, methods = {} }) => {
 
         <Group>
           <Header aside={<Link onClick={() => openPanel(Views.Title.Authors)}>Все авторы</Link>}>Авторы</Header>
-          { _authors.length === 0 && emptyPlaceholder }
-          { _authors.map(author => authorCell(author)) }
+          { entry.authors.length === 0 && emptyPlaceholder }
+          { entry.authors.map(author => authorCell(author)) }
         </Group>
 
         <Group>
           <Header aside={<Link onClick={() => openPanel(Views.Title.Companies)}>Все студии</Link>}>Студии</Header>
-          { _companies.length === 0 && emptyPlaceholder }
-          { _companies.map(item => companiesCell(item)) }
+          { entry.companies.length === 0 && emptyPlaceholder }
+          { entry.companies.map(item => companiesCell(item)) }
         </Group>
 
         <Group>
           <Header aside={<Link onClick={() => openPanel(Views.Title.Communities)}>Все сообщества</Link>}>Сообщества</Header>
-          { _communities.length === 0 && emptyPlaceholder }
-          { _communities.map(item => communityCell(item)) }
+          { entry.communities.length === 0 && emptyPlaceholder }
+          { entry.communities.map(item => communityCell(item)) }
         </Group>
 
         <Group>
           <Header>Статистика</Header>
-          { _statistic.length === 0 && emptyPlaceholder }
+          { entry.statistic.length === 0 && emptyPlaceholder }
         </Group>
 
         <Group>
           <Header aside={<Link onClick={() => openPanel(Views.Title.Links)}>Все ссылки</Link>}>Внешние ссылки</Header>
-          { _ext_links.length === 0 && emptyPlaceholder }
-          { _ext_links.map(item => extLinkCell(item)) }
+          { entry.ext_links.length === 0 && emptyPlaceholder }
+          { entry.ext_links.map(item => extLinkCell(item)) }
         </Group>
 
         { preferences.debug &&
@@ -244,15 +209,15 @@ const TitleStory = ({ activeView, data, methods = {} }) => {
             <PanelHeaderBack onClick={closePanel} />
           }
         >Авторы</PanelHeader>
-        { _authors.length === 0 && emptyPlaceholder }
-        { _authors.length > 0 &&
+        { entry.authors.length === 0 && emptyPlaceholder }
+        { entry.authors.length > 0 &&
           <React.Fragment>
             <Group>
               <List>
-              { _authors.map(item => authorCell(item)) }
+              { entry.authors.map(item => authorCell(item)) }
               </List>
             </Group>
-            <Footer>{ _authors.length } авторов</Footer>
+            <Footer>{ entry.authors.length } авторов</Footer>
           </React.Fragment>
         }
       </Panel>
@@ -263,18 +228,40 @@ const TitleStory = ({ activeView, data, methods = {} }) => {
             <PanelHeaderBack onClick={closePanel} />
           }
         >Студии</PanelHeader>
-        { _companies.length === 0 && emptyPlaceholder }
-        { _companies.length > 0 &&
+        { entry.companies.length === 0 && emptyPlaceholder }
+        { entry.companies.length > 0 &&
           <React.Fragment>
-            { Object.keys(companies()).map(index =>
+            { Object.keys(entry.grouped_companies()).map(index =>
               <Group key={'companies-' + index}>
                 <Header>{ index }</Header>
                 <List>
-                { companies()[index].map(item => companiesCell(item) ) }
+                { entry.grouped_companies()[index].map(item => companiesCell(item) ) }
                 </List>
               </Group>
             )}
-            <Footer>{ _companies.length } студий</Footer>
+            <Footer>{ entry.companies.length } студий</Footer>
+          </React.Fragment>
+        }
+      </Panel>
+
+      <Panel id={Views.Title.Genres}>
+        <PanelHeader separator={false}
+          before={
+            <PanelHeaderBack onClick={closePanel} />
+          }
+        >Жанры</PanelHeader>
+        { entry.genres.length === 0 && emptyPlaceholder }
+        { entry.genres.length > 0 &&
+          <React.Fragment>
+            { Object.keys(entry.grouped_genres()).map(index =>
+              <Group key={'genres-' + index}>
+                <Header>{ index }</Header>
+                <List>
+                { entry.grouped_genres()[index].map(item => genreCell(item) ) }
+                </List>
+              </Group>
+            )}
+            <Footer>{ entry.genres.length } жанров</Footer>
           </React.Fragment>
         }
       </Panel>
@@ -285,15 +272,15 @@ const TitleStory = ({ activeView, data, methods = {} }) => {
             <PanelHeaderBack onClick={closePanel} />
           }
         >Сообщества</PanelHeader>
-        { _communities.length === 0 && emptyPlaceholder }
-        { _communities.length > 0 &&
+        { entry.communities.length === 0 && emptyPlaceholder }
+        { entry.communities.length > 0 &&
           <React.Fragment>
             <Group>
               <List>
-              { _communities.map(item => communityCell(item) ) }
+              { entry.communities.map(item => communityCell(item) ) }
               </List>
             </Group>
-            <Footer>{ _communities.length } сообществ</Footer>
+            <Footer>{ entry.communities.length } сообществ</Footer>
           </React.Fragment>
         }
       </Panel>
@@ -304,15 +291,15 @@ const TitleStory = ({ activeView, data, methods = {} }) => {
             <PanelHeaderBack onClick={closePanel} />
           }
         >Внешние ссылки</PanelHeader>
-        { _ext_links.length === 0 && emptyPlaceholder }
-        { _ext_links.length > 0 &&
+        { entry.ext_links.length === 0 && emptyPlaceholder }
+        { entry.ext_links.length > 0 &&
           <React.Fragment>
             <Group>
               <List>
-              { _ext_links.map(item => extLinkCell(item)) }
+              { entry.ext_links.map(item => extLinkCell(item)) }
               </List>
             </Group>
-            <Footer>{ _ext_links.length } ссылки</Footer>
+            <Footer>{ entry.ext_links.length } ссылки</Footer>
           </React.Fragment>
         }
       </Panel>

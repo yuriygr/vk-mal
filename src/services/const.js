@@ -15,6 +15,7 @@ export const Views = {
     Main:        'title_main',
     Authors:     'title_authors',
     Companies:   'title_companies',
+    Genres:      'title_genres',
     Communities: 'title_communities',
     Links:       'title_links'
   }
@@ -23,7 +24,8 @@ export const Views = {
 export const Panels = {
   Main: {
     Overview: {
-      Main: 'main_overview_main'
+      Main:    'main_overview_main',
+      Suggest: 'main_overview_suggest'
     },
   
     Search: {
@@ -66,3 +68,18 @@ export const LIST_TABS = {
     { label: 'Планируется', key: 'plan-to-read' },
   ]
 };
+
+export const DefaultNavigationState = {
+  activeStory: Stories.Main,
+  activeViews: {
+    [Stories.Main]: Views.Main.Overview,
+    [Stories.Title]: Views.Title.Main
+  },
+  activePanels: {
+    [Views.Main.Overview]: Panels.Main.Overview.Main,
+    [Views.Main.Search]: Panels.Main.Search.Main,
+    [Views.Main.List]: Panels.Main.List.Main,
+    [Views.Main.Etc]: Panels.Main.Etc.Main,
+  },
+  storyHistory: [ Stories.Main ]
+}
