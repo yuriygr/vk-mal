@@ -17,7 +17,8 @@ export const Views = {
     Companies:   'title_companies',
     Genres:      'title_genres',
     Communities: 'title_communities',
-    Links:       'title_links'
+    Links:       'title_links',
+    Debug:       'title_debug'
   }
 }
 
@@ -25,7 +26,8 @@ export const Panels = {
   Main: {
     Overview: {
       Main:    'main_overview_main',
-      Suggest: 'main_overview_suggest'
+      Suggest: 'main_overview_suggest',
+      Hello:   'main_overview_hello'
     },
   
     Search: {
@@ -42,11 +44,17 @@ export const Panels = {
       Feedback: 'main_etc_feedback',
       Tests:    'main_etc_tests',
       Donate:   'main_etc_donate',
+      Import:   'main_etc_import',
     }
   }
 }
 
-export const TITLE_EDIT_MODAL = 'ted';
+export const Modals = {
+  TitleEdit:     'modal_title_edit',
+  SearchFilter:  'modal_search_filter',
+  SuggestFilter: 'modal_suggest_filter'
+}
+
 
 export const TABS_ANIME = 'anime';
 export const TABS_MANGA = 'manga';
@@ -71,15 +79,23 @@ export const LIST_TABS = {
 
 export const DefaultNavigationState = {
   activeStory: Stories.Main,
+  storyHistory: [ Stories.Main ],
+
   activeViews: {
     [Stories.Main]: Views.Main.Overview,
     [Stories.Title]: Views.Title.Main
   },
-  activePanels: {
+
+  viewActivePanels: {
     [Views.Main.Overview]: Panels.Main.Overview.Main,
     [Views.Main.Search]: Panels.Main.Search.Main,
     [Views.Main.List]: Panels.Main.List.Main,
     [Views.Main.Etc]: Panels.Main.Etc.Main,
   },
-  storyHistory: [ Stories.Main ]
+  viewsHistory: {
+    [Views.Main.Overview]: [ Panels.Main.Overview.Main ],
+    [Views.Main.Search]: [ Panels.Main.Search.Main ],
+    [Views.Main.List]: [ Panels.Main.List.Main ],
+    [Views.Main.Etc]: [ Panels.Main.Etc.Main ],
+  }
 }

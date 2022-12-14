@@ -1,11 +1,11 @@
-import SuggestPanel from './suggest.js';
-import FeedbackPanel from './feedback.js';
-import TestsPanel from './tests.js';
-import DonatePanel from './donate.js';
+import { OverviewSuggestPanel } from './overview'
+import { EtcMainPanel, EtcFeedbackPanel, EtcTestsPanel, EtcDonatePanel } from './etc'
 
 export {
-  SuggestPanel,
-  FeedbackPanel,
-  TestsPanel,
-  DonatePanel
+  OverviewSuggestPanel,
+  
+  EtcMainPanel,
+  EtcFeedbackPanel,
+  EtcTestsPanel,
+  EtcDonatePanel
 }

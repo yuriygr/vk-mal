@@ -1,5 +1,7 @@
-import React from 'react';
-import { Panel, PanelHeader, PanelHeaderBack, Placeholder } from '@vkontakte/vkui';
+import React from 'react'
+import PropTypes from 'prop-types'
+
+import { Panel, PanelHeader, PanelHeaderBack, Placeholder } from '@vkontakte/vkui'
 import { Icon56LikeOutline } from '@vkontakte/icons';
 
 const SecretStory = ({ methods }) => {
@@ -17,5 +19,9 @@ const SecretStory = ({ methods }) => {
   )
 }
 
-export default SecretStory;
+SecretStory.propTypes = {
+  methods: PropTypes.object
+}
+
+export default SecretStory
   

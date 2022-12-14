@@ -1,24 +1,27 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { DefaultNavigationState } from "../services/const"
 
-const NavigationContext = React.createContext(null)
+import bridge from '@vkontakte/vk-bridge';
 
 /**
  * Моя собственная реализация навигации между экртанами.
- * Да, не идеально, но мои потребности покрывает на все сто, о о о.
+ * Да, не идеально, но мои потребности покрывает на все сто, о-о-о.
  * 
- * @vesion 1.0.4
+ * @version 1.0.4
  */
+const NavigationContext = React.createContext(null)
+
 export const NavigationProvider = ({ children }) => {
   // История -- главная штука. Внутри нее происходят уже смены View и Panels внутри View
   const [activeStory, setActiveStory] = useState(DefaultNavigationState.activeStory)
   const [activeViews, setActiveViews] = useState(DefaultNavigationState.activeViews)
-  const [activePanels, setActivePanels] = useState(DefaultNavigationState.activePanels)
+  const [viewActivePanels, setViewActivePanels] = useState(DefaultNavigationState.viewActivePanels)
 
   const [activeModal, setActiveModal] = useState(null)
 
   const [storyHistory, setStoryHistory] = useState(DefaultNavigationState.storyHistory)
+  const [viewsHistory, setViewsHistory] = useState(DefaultNavigationState.viewsHistory)
   const [modalHistory, setModalHistory] = useState([])
 
   /**
@@ -27,21 +30,35 @@ export const NavigationProvider = ({ children }) => {
    * @param {string} _view   Активный вид активного экрана
    * @param {string} _panel  Активная панель активного вида активного экрана
    */
-  const go = (_story, _view = activeViews[_story], _panel = activePanels[_view]) => {
-    let _storyHistory = storyHistory ? [...storyHistory] : [];
+  const go = (_story, _view = activeViews[_story], _panel = viewActivePanels[_view]) => {
+    let _storyHistory = storyHistory ? [...storyHistory] : []
 
     if (_story === null) {
-        _storyHistory = [];
+        _storyHistory = []
     } else if (_storyHistory.indexOf(_story) !== -1) {
-        _storyHistory = _storyHistory.splice(0, _storyHistory.indexOf(_story) + 1);
+        _storyHistory = _storyHistory.splice(0, _storyHistory.indexOf(_story) + 1)
     } else {
-        _storyHistory.push(_story);
+        _storyHistory.push(_story)
+    }
+
+    // Да-да-да
+    let _viewsHistory = viewsHistory[_view] ? [...viewsHistory[_view]] : []
+
+    if (_panel === null) {
+      _viewsHistory = []
+    } else if (_viewsHistory.indexOf(_panel) !== -1) {
+      _viewsHistory = _viewsHistory.splice(0, _viewsHistory.indexOf(_panel) + 1);
+    } else {
+      _viewsHistory.push(_panel)
     }
 
     setStoryHistory(_storyHistory)
     setActiveStory(_story)
+
     setActiveViews({...activeViews, [_story]: _view})
-    setActivePanels({...activePanels, [_view]: _panel})
+  
+    setViewsHistory({...viewsHistory, [_view]: _viewsHistory})
+    setViewActivePanels({...viewActivePanels, [_view]: _panel})
   }
 
   /**
@@ -73,35 +90,64 @@ export const NavigationProvider = ({ children }) => {
   }
 
   /**
+   * Получает историю панелей вьюшек
+   * @param {string} _view 
+   * @returns {string}
+   */
+  const viewHistory = (_view = activeView(activeStory)) => {
+    return viewsHistory[_view]
+  }
+
+  /**
    * Получает активную панель во Вьюшке
    * @param {string} _view Нужная вьюшка. Если нету - используем акктивную
    * @returns {string}
    */
-  const activePanel = (_view = activeView(activeStory)) => {
-    return activePanels[_view]
+  const viewActivePanel = (_view = activeView(activeStory)) => {
+    return viewActivePanels[_view] || []
   }
+
+
+  /**
+   * Кнопки навигации назад
+   */
 
   const modalBack = () => {
     openModal(modalHistory[modalHistory.length - 2])
-  };
+  }
 
   const storyBack = () => {
     go(storyHistory[storyHistory.length - 2])
   }
 
+  const viewPanelBack = () => {
+    let _history = viewHistory()
+    go(activeStory, activeView(), _history[_history.length - 2])
+  }
+
+
+ const isFirst = viewActivePanel().length === 1
+
+ useEffect(() => {
+   bridge.send("VKWebAppSetSwipeSettings", { history: isFirst })
+ }, [isFirst])
+
   return (
     <NavigationContext.Provider
       value={{
         activeStory,
-        activeView,
-        activePanel,
         activeModal,
+
+        activeView,
+        viewHistory,
+        viewActivePanel,
 
         // Методы Навигации по приложению
         go,
         openModal,
         modalBack,
-        storyBack
+        storyBack,
+        viewPanelBack
       }}
     >
       {children}

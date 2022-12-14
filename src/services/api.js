@@ -37,56 +37,83 @@ instance.interceptors.response.use(
   }
 )
 
-export const help = {
-  get: ({ id, slug }) => {
-    return instance.get(`/help/${id}-${slug}`)
-  }
-}
-
-export const utils = {
+const content = {
+  help: {
+    get: ({ id, slug }) => {
+      return instance.get(`/content/help/${id}-${slug}`)
+    }
+  },
+  article: {
+    list: (params) => {
+      let data = helpers.prepareGetData(params)
+      return instance.get(`/content/article?${data}`)
+    },
+    get: ({ id, slug }) => {
+      return instance.get(`/content/article/${id}-${slug}`)
+    }
+  },
   feedback: (params) => {
     let [formData, headers] = helpers.preparePostData(params)
-    return instance.post('/feedback', formData, headers)
+    return instance.post('/content/feedback', formData, headers)
   }
 }
 
-export const auth = {
-
-}
-
-export const my = {
-  profile: () => {
-    return instance.get(`/my/profile`)
-  },
-  overview: () => {
-    return instance.get(`/my/overview`)
-  },
-  list: (type, params) => {
+const auth = {
+  pizdec: (params) => {
     let data = helpers.prepareGetData(params)
-    return instance.get(`/my/${type}-list?${data}`)
+    return instance.get(`/auth/vkminiapp?${data}`)
+  },
+  session: () => {
+    return instance.get('/auth/session')
+  },
+  logout: (params = {}) => {
+    let [formData, headers] = helpers.preparePostData(params)
+    return instance.post('/auth/logout', formData, headers)
   }
 }
 
-export const catalog = {
-  title: (id) => {
-
+const catalog = {
+  anime: (id) => {
+    return instance.get(`/catalog/anime/${id}`)
   },
   company: (id) => {
 
   },
   genre: (id) => {
   
+  },
+  search: (params = {}) => {
+    let data = helpers.prepareGetData(params)
+    return instance.get(`/catalog/search?${data}`)
   }
 }
 
-export const mySearch = {
-  get: (params) => {
-    if (params.query === '')
-      return Promise.resolve([]);
-
+const my = {
+  profile: () => {
+    return instance.get(`/my/profile`)
+  },
+  overview: () => {
+    return instance.get(`/my/overview`)
+  },
+  suggest: () => {
+    return instance.get(`/my/suggest`)
+  },
+  list: {
+    get: (type, params) => {
+      let data = helpers.prepareGetData(params)
+      return instance.get(`/my/${type}-list?${data}`)
+    },
+    update: (type, id, params) => {
+      let [formData, headers] = helpers.preparePostData(params)
+      return instance.post(`/my/${type}-list/${id}`, formData, headers)
+    },
+    delete: (type, id) => {
+      return instance.delete(`/my/${type}-list/${id}`)
+    }
   }
 }
+
 
 export default {
-  auth, catalog, my
+  auth, content, catalog, my
 }

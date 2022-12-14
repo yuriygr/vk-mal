@@ -1,36 +1,35 @@
 import React, { useState, useContext, useEffect } from 'react';
 import {
-  AppRoot, ModalRoot, Epic, SplitLayout, Placeholder,
-  Tabbar, TabbarItem,
-  View, Panel, List, Cell, Header, Group, Spacing, CardGrid, CardScroll, ScreenSpinner, Tabs, TabsItem, HorizontalScroll,
-  
-  PanelHeader, PanelHeaderContent, PanelHeaderContext,
-  PullToRefresh, Footer, Link, Search,
-
-  AdaptivityProvider, ConfigProvider, SimpleCell, Switch, PanelHeaderButton,
+  AppRoot, ModalRoot, SplitLayout, Placeholder,
+  View, Panel, List, Cell, Header, Group, Spacing, CardGrid, CardScroll, Tabs, TabsItem, HorizontalScroll,
+  PanelHeader, PanelHeaderButton, PanelHeaderContent, PanelHeaderContext,
+  PullToRefresh, Footer, Link, Button
 } from '@vkontakte/vkui';
 import {
-  Icon16Dropdown, Icon24Done,
-  Icon28SearchStarsOutline,
-  Icon28GridLayoutOutline,
-  Icon28HorseToyOutline, Icon24LikeOutline, Icon28VideoSquareOutline, Icon28BookOutline, Icon28ListBulletSquareOutline, Icon28MoreHorizontal, Icon28QuestionOutline, Icon28MoneyCircleOutline, Icon28HieroglyphCharacterOutline, Icon28BracketsSlashSquareOutline, Icon28BugOutline, Icon28MagicWandOutline
+  Icon16Dropdown, Icon24Done, Icon24LikeOutline, Icon28VideoSquareOutline, Icon28BookOutline, Icon28MagicWandOutline, Icon28SlidersOutline
 } from '@vkontakte/icons';
-import bridge from '@vkontakte/vk-bridge';
+import bridge from '@vkontakte/vk-bridge'
 
 // Мои штуки
-import UserContext from '../contexts/user'
-import PreferencesContext from '../contexts/preferences'
-import NavigationContext from '../contexts/navigator';
+import UserContext from '@contexts/user'
+import PreferencesContext from '@contexts/preferences'
+import NavigationContext from '@contexts/navigator'
 
-import { GenreThumb } from '../components/genres';
-import { TitleThumb, TitleListItem } from '../components/titles';
-import { TitleStory, SecretStory } from '../views/stories';
-import { SuggestPanel, FeedbackPanel, TestsPanel, DonatePanel } from '../views/panels';
-import { ModalPageTitleEdit } from '../views/modals';
-import { Stories, Views, Panels, TITLE_EDIT_MODAL, LIST_TABS, TABS_ANIME, TABS_MANGA } from "../services/const";
-import Api, { mySearch } from '../services/api';
+import { GenreThumb } from '../components/genres'
+import { TitleThumb, TitleListItem } from '../components/titles'
+import HelloBlock from '../components/hello'
 
-import "@vkontakte/vkui/dist/vkui.css";
+import { MainStory, TitleStory, SecretStory } from '@views/stories'
+import { OverviewSuggestPanel, OverviewHelloPanel } from '@views/panels/overview'
+import { SearchMainPanel } from '@views/panels/search'
+import { EtcMainPanel, EtcFeedbackPanel, EtcTestsPanel, EtcDonatePanel, EtcImportPanel } from '@views/panels/etc'
+
+import { ModalPageTitleEdit, ModalPageSearchFilter, ModalPageSuggestFilter } from '@views/modals'
+
+import { Stories, Views, Panels, Modals, LIST_TABS, TABS_ANIME, TABS_MANGA } from '@services/const'
+import Api from '@services/api'
+
+import "@vkontakte/vkui/dist/vkui.css"
 
 const App = () => {
   const user = useContext(UserContext)
@@ -39,10 +38,9 @@ const App = () => {
 
   const [overviewData, setOverviewData] = useState([])
 
-  const [activeTitle, setActiveTitle] = useState({})
+  const [ searchQuery, setSearchQuery ] = useState('')
 
-  const [searchQuery, setSearchQuery] = useState('')
-  const [searchData, setSearchData] = useState([])
+  const [activeTitle, setActiveTitle] = useState({})
 
   const [listData, setListData] = useState([])
   const [activeListType, setActiveListType] = useState(TABS_ANIME)
@@ -53,7 +51,9 @@ const App = () => {
   const [listTabs, setListTabs] = useState(LIST_TABS)
 
   const [popout, setPopout] = useState(null)
-  const [fetching, setFetching] = useState(false)
+  const [fetching, setFetching] = useState({
+    overview: false, list: false
+  })
   const [error, setError] = useState(false)
 
   /**
@@ -64,56 +64,48 @@ const App = () => {
     setPopout(popout)
   }
 
-  const handleFetchError = (error) => {
-    setError(error)
-    setFetching(false)
-    setPopout(null)
-  }
-
   // Смотрим за событиями моста
   const watchBridge = () => {
     bridge.subscribe((e) => {
       switch (e.detail.type) {
-        case 'VKWebAppUpdateConfig':
-          preferences.setAppearance(e.detail.data.appearance)
-          break;
-      
         default:
           break;
       }
     })
   }
 
+  const updateActiveTitle = (params) => {
+    setActiveTitle(prev => ({
+      ...prev,
+      ...params
+    }))
+  }
+
   // Загрузка главной страницы
-  const fetchOverview = () => {
-    setFetching(true)
-    setPopout(<ScreenSpinner />)
+  const fetchOverview = (init = false) => {
+    setFetching({ ...fetching, overview: true })
 
     Api.my.overview()
-    .then(data => {
+    .then(data => 
       setOverviewData(data.sections)
-      setFetching(false)
-      setPopout(null)
-    })
-    .catch(handleFetchError)
+    )
+    .catch(error => setError(error))
+    .then(_ => setFetching({ ...fetching, overview: false }))
   }
 
   // Загрузка списка
-  const fetchList = () => {
-    setFetching(true)
-    setPopout(<ScreenSpinner />)
+  const fetchList = (init = false) => {
+    setFetching({ ...fetching, list: true })
 
-    Api.my.list(activeListType, {
-      list: activeListTab,
-      page: 1
-    })
-    .then(data => {
-      listData[activeListType + '-' + activeListTab] = data
-      setListData(listData)
-      setFetching(false)
-      setPopout(null)
-    })
-    .catch(handleFetchError)
+    Api.my.list.get(activeListType, { list: activeListTab, page: 1 })
+    .then(data => 
+      setListData(prevState => ({
+        ...prevState,
+        [activeListType + '-' + activeListTab]: data
+      }))
+    )
+    .catch(error => setError(error))
+    .then(_ => setFetching({ ...fetching, list: false }))
   }
 
   // Открытие панели с тайтлом
@@ -153,54 +145,24 @@ const App = () => {
     fetchList()
   }, [activeListTab, activeListType])
 
-  const changeSearchQuery = (e) => {
-    setSearchQuery(e.target.value)
-    mySearch.get({ query: e.target.value })
-    .then(data => {
-      setSearchData(data)
-      setFetching(false)
-      setPopout(null)
-    })
-    .catch(handleFetchError)
+  const refreshOverview = () => {
+    fetchOverview()
   }
 
-  const refreshOverview = async () => {
-    await this.fetchOverview()
+  const refreshList = () => {
+    fetchList()
   }
 
-  const refreshList = async () => {
-    await this.fetchList()
-  }
+  const loadMoreList = () => {
 
-  const mainTabbar = (
-    <Tabbar>
-      <TabbarItem
-        onClick={() => navigations.go(Stories.Main, Views.Main.Overview, Panels.Main.Overview.Main)}
-        selected={navigations.activeView(Stories.Main) === Views.Main.Overview}
-        text="Обзор"
-      ><Icon28GridLayoutOutline /></TabbarItem>
-      <TabbarItem
-        onClick={() => navigations.go(Stories.Main, Views.Main.Search, Panels.Main.Search.Main)}
-        selected={navigations.activeView(Stories.Main) === Views.Main.Search}
-        text="Поиск"
-      ><Icon28SearchStarsOutline /></TabbarItem>
-      <TabbarItem
-        onClick={() => navigations.go(Stories.Main, Views.Main.List, Panels.Main.List.Main)}
-        selected={navigations.activeView(Stories.Main) === Views.Main.List}
-        text="Список"
-      ><Icon28ListBulletSquareOutline /></TabbarItem>
-      <TabbarItem
-        onClick={() => navigations.go(Stories.Main, Views.Main.Etc, Panels.Main.Etc.Main)}
-        selected={navigations.activeView(Stories.Main) === Views.Main.Etc}
-        text="Еще"
-      ><Icon28MoreHorizontal /></TabbarItem>
-    </Tabbar>
+  }
+ 
+  const overviewSuggestButton = (
+    <PanelHeaderButton aria-label="Что посмотреть" onClick={() => navigations.go(Stories.Main, Views.Main.Overview, Panels.Main.Overview.Suggest)}><Icon28MagicWandOutline /></PanelHeaderButton>
   )
 
-  const modal = (
-    <ModalRoot activeModal={navigations.activeModal} onClose={navigations.modalBack}>
-      <ModalPageTitleEdit dynamicContentHeight settlingHeight={100} id={TITLE_EDIT_MODAL} goBack={navigations.modalBack} data={activeTitle} />
-    </ModalRoot>
+  const listFilterButton = (
+    <PanelHeaderButton aria-label="Фильтр" onClick={() => navigations.openModal(Modals.SearchFilter)}><Icon28SlidersOutline /></PanelHeaderButton>
   )
 
   const listHeaderContext = (
@@ -230,202 +192,171 @@ const App = () => {
     </List>
   )
 
-  const activeListData = () => {
-    return listData[activeListType + '-' + activeListTab] || []
+  const activeListData = (
+     listData[activeListType + '-' + activeListTab] || {}
+  )
+
+  const listTabItem = (tab) => {
+    return <TabsItem
+      aria-controls={tab.label}
+      key={tab.key}
+      onClick={() => changeListTab(tab.key)}
+      selected={activeListTab === tab.key}
+    >{tab.label}</TabsItem>
   }
 
-  const emptyPlaceholder = (message) => {
-    return <Placeholder>{message}</Placeholder>
-  }
+  const listSecretTabItem = (
+    <TabsItem
+      aria-controls='Секрет'
+      onClick={() => navigations.go(Stories.Secret)}
+      selected={activeListTab === 'secret'}
+    ><Icon24LikeOutline style={{ color: 'var(--vkui--color_icon_negative)' }} /></TabsItem>
+  )
 
   const titleListItem = (title) => {
     const _key = 'list-item-' + title.anime_id
     return <TitleListItem key={_key} data={title} onClick={() => fetchTitle(title)} />
   }
 
+  
+  const emptyPlaceholder = (message) => {
+    return <Placeholder>{message}</Placeholder>
+  }
+
   // Методы что мы передаем во все охуительные истории
   const _methods = {
     go: navigations.go,
     storyBack: navigations.storyBack,
+    viewPanelBack: navigations.viewPanelBack,
     openModal: navigations.openModal,
-    openPopout: openPopout
+    modalBack: navigations.modalBack,
+    openPopout: openPopout,
+    fetchTitle: fetchTitle
   }
 
+  const modal = (
+    <ModalRoot activeModal={navigations.activeModal} onClose={navigations.modalBack}>
+      <ModalPageTitleEdit     dynamicContentHeight settlingHeight={100} id={Modals.TitleEdit}     methods={_methods} data={activeTitle} updateData={updateActiveTitle} />
+      <ModalPageSearchFilter  dynamicContentHeight settlingHeight={100} id={Modals.SearchFilter}  methods={_methods} />
+      <ModalPageSuggestFilter dynamicContentHeight settlingHeight={100} id={Modals.SuggestFilter} methods={_methods} />
+    </ModalRoot>
+  )
+
   return (
-    <ConfigProvider appearance={preferences.appearance}>
-      <AdaptivityProvider>
-        <AppRoot>
-          <SplitLayout modal={modal} popout={popout}>
+    <AppRoot>
+      <SplitLayout modal={modal} popout={popout}>
 
-            <View activePanel={navigations.activeStory}>
-              <Epic id={Stories.Main} activeStory={navigations.activeView(Stories.Main)} tabbar={mainTabbar}>
-                <View id={Views.Main.Overview} activePanel={navigations.activePanel(Views.Main.Overview)}>
-                  <Panel id={Panels.Main.Overview.Main}>
-                    <PanelHeader separator={false} before={
-                      <PanelHeaderButton aria-label="Что посмотреть" onClick={() => navigations.go(Stories.Main, Views.Main.Overview, Panels.Main.Overview.Suggest)}><Icon28MagicWandOutline /></PanelHeaderButton>
-                    }>Обзор</PanelHeader>                          
-                    <PullToRefresh
-                      onRefresh={() => refreshOverview}
-                      isFetching={fetching}
-                    >
-                      { overviewData.map(section =>
-                        <Group key={'section-' + section.slug}>
-                          <Header subtitle={ section.subtitle } aside={<Link>Смотреть все</Link>}>{ section.title }</Header>
-                        { section.items.length === 0 &&
+        <View activePanel={navigations.activeStory}>
+          <MainStory id={Stories.Main} activeView={navigations.activeView(Stories.Main)}>
+            <View id={Views.Main.Overview}
+              activePanel={navigations.viewActivePanel(Views.Main.Overview)}
+              history={navigations.viewHistory(Views.Main.Overview)}
+              onSwipeBack={navigations.viewPanelBack}
+            >
+              <Panel id={Panels.Main.Overview.Main}>
+                <PanelHeader separator={false} before={overviewSuggestButton}>Обзор</PanelHeader>                          
+                <PullToRefresh onRefresh={refreshOverview} isFetching={fetching.overview}>
+                  <HelloBlock methods={_methods} />
+                  { overviewData.map(section =>
+                    <Group key={'section-' + section.slug}>
+                      <Header subtitle={ section.subtitle } aside={<Link>Смотреть все</Link>}>{ section.title }</Header>
+                      { section.items.length === 0 &&
                           emptyPlaceholder("Тут пока-что пусто...")
-                        }
-                        { section.items.length > 0 && section.type === 'anime' &&
-                          <React.Fragment>
-                            <CardScroll size="s">
-                            { section.items.map(title =>
-                              <TitleThumb key={title.id} data={title} onClick={() => fetchTitle(title)} />
-                            ) }
-                            </CardScroll>
-                          </React.Fragment>
-                        }
-                        { section.items.length > 0 && section.type === 'genre' &&
-                          <React.Fragment>
-                            <CardScroll size="s">
-                            { section.items.map(item =>
-                              <GenreThumb key={item.genre_id} data={item} onClick={() => fetchGenre(item)} />
-                            ) }
-                            </CardScroll>
-                          </React.Fragment>
-                        }
-                        </Group>
-                      ) }
-                    </PullToRefresh>
-                  </Panel>
-
-                  <SuggestPanel id={Panels.Main.Overview.Suggest} methods={_methods} />
-                </View>
-          
-                <View id={Views.Main.Search} activePanel={navigations.activePanel(Views.Main.Search)}>
-                  <Panel id={Panels.Main.Search.Main}>
-                    <PanelHeader separator={false}>Поиск</PanelHeader>
-                    <Search
-                      value={searchQuery}
-                      onChange={changeSearchQuery}
-                      after={null}
-                    />
-                    { searchQuery === '' &&
-                      emptyPlaceholder("Чтобы начать искать введите в строку поиска название аниме/манги")
-                    }
-                    { searchQuery !== '' && searchData.length === 0 &&
-                      emptyPlaceholder("По вашему запросу ничего не найдено, возможно, стоит уточнить название")
-                    }
-                    { searchData.length > 0 &&
-                      <React.Fragment>
-                        <Spacing size={16} />
-                        <CardGrid size="l">
-                        { searchData.map(title => titleListItem(title)) }
-                        </CardGrid>
-                        <Footer>{ searchData.length } записи</Footer>
-                      </React.Fragment>
-                    }
-                  </Panel>
-                </View>
-          
-                <View id={Views.Main.List} activePanel={navigations.activePanel(Views.Main.List)}>
-                  <Panel id={Panels.Main.List.Main}>
-                    <PanelHeader separator={false}>
-                      <PanelHeaderContent
-                        aside={
-                          <Icon16Dropdown style={{ transform: `rotate(${ listContextOpened ? "180deg" : "0" })`}} />
-                        }
-                        onClick={toggleListContext}
-                      >
-                        { activeListType === TABS_ANIME ? 'Список аниме' : 'Список манги' }
-                      </PanelHeaderContent>
-                    </PanelHeader>
-                    <PanelHeaderContext
-                      opened={listContextOpened}
-                      onClose={toggleListContext}
-                    >
-                      { listHeaderContext }
-                    </PanelHeaderContext>
-                    <Tabs>
-                      <HorizontalScroll>
-                      { activeListTabs.map(tab =>
-                        <TabsItem
-                          aria-controls={tab.label}
-                          key={tab.key}
-                          onClick={() => changeListTab(tab.key)}
-                          selected={activeListTab === tab.key}
-                        >{tab.label}</TabsItem>
-                      ) }
-                        <TabsItem
-                          aria-controls='Секрет'
-                          onClick={() => navigations.go(Stories.Secret)}
-                          selected={activeListTab === 'secret'}
-                        ><Icon24LikeOutline style={{ color: 'var(--vkui--color_icon_negative)' }} /></TabsItem>
-                      </HorizontalScroll>
-                    </Tabs>
-                    
-                    <PullToRefresh
-                      onRefresh={() => refreshList}
-                      isFetching={fetching}
-                    >
-                      { activeListData().length === 0 &&
-                        <Placeholder>
-                          На данный момент, у вас не добавлено ни { activeListType === TABS_ANIME ? 'одного аниме' : 'одной манги' } в список!
-                        </Placeholder>
                       }
-                      { activeListData().length > 0 &&
+                      { section.items.length > 0 && section.type === 'anime' &&
                         <React.Fragment>
-                          <Spacing size={16} />
-                          <CardGrid size="l">
-                          { activeListData().map(title => titleListItem(title)) }
-                          </CardGrid>
-                          <Footer>{ activeListData().length } записи</Footer>
+                          <CardScroll size="s">
+                          { section.items.map(title =>
+                            <TitleThumb key={title.id} data={title} onClick={() => fetchTitle(title)} />
+                          ) }
+                          </CardScroll>
                         </React.Fragment>
                       }
-                    </PullToRefresh>
-                  </Panel>
-                </View>
-
-                <View id={Views.Main.Etc} activePanel={navigations.activePanel(Views.Main.Etc)}>
-                  <Panel id={Panels.Main.Etc.Main}>
-                    <PanelHeader separator={false}>Еще</PanelHeader>
-                    <Group>
-                      <Header>Настройки</Header>
-                      <SimpleCell expandable before={<Icon28HieroglyphCharacterOutline />} indicator="Русский">Названия</SimpleCell>
-                      <SimpleCell Component="label" before={<Icon28BugOutline />} after={<Switch defaultChecked />}>Режим отладки</SimpleCell>
+                      { section.items.length > 0 && section.type === 'genre' &&
+                        <React.Fragment>
+                          <CardScroll size="s">
+                          { section.items.map(item =>
+                            <GenreThumb key={item.genre_id} data={item} onClick={() => fetchGenre(item)} />
+                          ) }
+                          </CardScroll>
+                        </React.Fragment>
+                      }
                     </Group>
-                    <Group>
-                      <List>
-                        <Cell expandable before={<Icon28QuestionOutline />} onClick={() => navigations.go(Stories.Main, Views.Main.Etc, Panels.Main.Etc.Feedback)}>
-                          Обратная связь
-                        </Cell>
-                        <Cell expandable before={<Icon28MoneyCircleOutline />} onClick={() => navigations.go(Stories.Main, Views.Main.Etc, Panels.Main.Etc.Donate)}>
-                          Поддержать
-                        </Cell>
-                        <Cell expandable before={<Icon28HorseToyOutline />} onClick={() => navigations.go(Stories.Main, Views.Main.Etc, Panels.Main.Etc.Tests)}>
-                          Проверочная
-                        </Cell>
-                        <SimpleCell before={<Icon28BracketsSlashSquareOutline />} component="a" target="_blank" href="https://github.com/yuriygr/vk-mal">Исходный код</SimpleCell>
-                      </List>
-                    </Group>
-                    <Footer>Версия 1.3</Footer>
-                  </Panel>
+                  ) }
+                </PullToRefresh>
+              </Panel>
 
-                  <FeedbackPanel id={Panels.Main.Etc.Feedback} methods={_methods} />
-                  <DonatePanel   id={Panels.Main.Etc.Donate}   methods={_methods} />
-                  <TestsPanel    id={Panels.Main.Etc.Tests}    methods={_methods} />
-                </View>
-              </Epic>
-              
-              <SecretStory id={Stories.Secret} methods={_methods} />
-              <TitleStory  id={Stories.Title}  methods={_methods}
-                activeView={navigations.activeView(Stories.Title)}
-                data={activeTitle}
-              />
+              <OverviewSuggestPanel id={Panels.Main.Overview.Suggest} methods={_methods} />
+              <OverviewHelloPanel   id={Panels.Main.Overview.Hello}   methods={_methods} />
+            </View>
+        
+            <View id={Views.Main.Search} activePanel={navigations.viewActivePanel(Views.Main.Search)}>
+              <SearchMainPanel id={Panels.Main.Search.Main} methods={_methods} query={searchQuery} setQuery={setSearchQuery} />
+            </View>
+        
+            <View id={Views.Main.List} activePanel={navigations.viewActivePanel(Views.Main.List)}>
+              <Panel id={Panels.Main.List.Main}>
+                <PanelHeader separator={false} before={listFilterButton}>
+                  <PanelHeaderContent
+                    aside={ <Icon16Dropdown style={{ transform: `rotate(${ listContextOpened ? "180deg" : "0" })`}} /> }
+                    onClick={toggleListContext}
+                  >
+                    { activeListType === TABS_ANIME ? 'Список аниме' : 'Список манги' }
+                  </PanelHeaderContent>
+                </PanelHeader>
+                <PanelHeaderContext opened={listContextOpened} onClose={toggleListContext}>
+                  { listHeaderContext }
+                </PanelHeaderContext>
+                <Tabs>
+                  <HorizontalScroll>
+                    { activeListTabs.map(tab => listTabItem(tab)) }
+                    { preferences.debug && listSecretTabItem }
+                  </HorizontalScroll>
+                </Tabs>
+                
+                <PullToRefresh onRefresh={refreshList} isFetching={fetching.list}>
+                  { activeListData.total === 0 &&
+                    emptyPlaceholder("На данный момент, у вас не добавлено ни " + ( activeListType === TABS_ANIME ? 'одного аниме' : 'одной манги' ) + " в список!")
+                  }
+                  { activeListData.total > 0 &&
+                    <React.Fragment>
+                      <Spacing size={16} />
+                      <CardGrid size="l">
+                        { activeListData.items.map(title => titleListItem(title)) }
+                      </CardGrid>
+                      { (activeListData.items.length < activeListData.total) &&
+                        <div style={{ padding: 'var(--vkui--size_base_padding_horizontal--regular)'}}>
+                          <Button onClick={loadMoreList} stretched mode="secondary" size="m">Загрузить еще</Button>
+                        </div>
+                      }
+                      <Footer>{ activeListData.items.length } из { activeListData.total } записей</Footer>
+                    </React.Fragment>
+                  }
+                </PullToRefresh>
+              </Panel>
             </View>
 
-          </SplitLayout>
-        </AppRoot>
-      </AdaptivityProvider>
-    </ConfigProvider>
+            <View id={Views.Main.Etc}
+              activePanel={navigations.viewActivePanel(Views.Main.Etc)}
+              history={navigations.viewHistory(Views.Main.Etc)}
+              onSwipeBack={navigations.viewPanelBack}
+            >
+              <EtcMainPanel     id={Panels.Main.Etc.Main}     methods={_methods} />
+              <EtcFeedbackPanel id={Panels.Main.Etc.Feedback} methods={_methods} />
+              <EtcDonatePanel   id={Panels.Main.Etc.Donate}   methods={_methods} />
+              <EtcTestsPanel    id={Panels.Main.Etc.Tests}    methods={_methods} />
+              <EtcImportPanel   id={Panels.Main.Etc.Import}   methods={_methods} />
+            </View>
+          </MainStory>
+            
+          <SecretStory id={Stories.Secret} methods={_methods} />
+          <TitleStory  id={Stories.Title}  methods={_methods} data={activeTitle}
+            activeView={navigations.activeView(Stories.Title)}
+          />
+        </View>
+
+      </SplitLayout>
+    </AppRoot>
   );
 }
 

@@ -1,10 +1,8 @@
 import React, { useState, useContext } from 'react'
 import { Panel, PanelHeader, PanelHeaderBack, FormLayout, FormItem, Select, Textarea, Button, Checkbox, Link, Alert } from '@vkontakte/vkui'
 
-import { Stories, Views, Panels } from  "../../services/const";
-import PreferencesContext from '../../contexts/preferences'
-
-import { utils } from '../../services/api';
+import PreferencesContext from "@contexts/preferences"
+import Api from "@services/api"
 
 const FeedbackPanel = ({ methods }) => {
   const preferences = useContext(PreferencesContext)
@@ -60,7 +58,7 @@ const FeedbackPanel = ({ methods }) => {
 
   const sendFeedback = () => {
     setFetching(true)
-    utils.feedback(fields)
+    Api.content.feedback(fields)
     .then(data => {
       setFetching(false)
       methods.openPopout(alert_success("Ваше обращение успешно отправлено, спасибо"))
@@ -71,15 +69,11 @@ const FeedbackPanel = ({ methods }) => {
     })
   }
 
-  const closePanel = () => {
-    methods.go(Stories.Main, Views.Main.Etc, Panels.Main.Etc.Main)
-  }
-
   return (
     <Panel>
       <PanelHeader separator={false}
         before={
-          <PanelHeaderBack onClick={closePanel} />
+          <PanelHeaderBack onClick={methods.viewPanelBack} />
         }
       >Обратная связь</PanelHeader>
       <FormLayout>

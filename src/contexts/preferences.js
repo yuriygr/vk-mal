@@ -1,14 +1,33 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
+import bridge from '@vkontakte/vk-bridge';
 
 const PreferencesContext = React.createContext(null)
 
 export const PreferencesProvider = ({ children }) => {
-  const [appearance, setAppearance] = useState('light')
+  const [appearance, setAppearance] = useState(false)
   const [language, setLanguage] = useState('russian')
+  const [secret, setSecret] = useState(false)
   const [debug, setDebug] = useState(false)
 
-   return (
+  const watchBridge = () => {
+    bridge.subscribe((e) => {
+      switch (e.detail.type) {
+        case 'VKWebAppUpdateConfig':
+          setAppearance(e.detail.data.appearance)
+          break;
+      
+        default:
+          break;
+      }
+    })
+  }
+
+  useEffect(() => {
+    watchBridge()
+  }, [])
+
+  return (
     <PreferencesContext.Provider
       value={{
         appearance,
@@ -16,7 +35,9 @@ export const PreferencesProvider = ({ children }) => {
         language,
         setLanguage,
         debug,
-        setDebug
+        setDebug,
+        secret,
+        setSecret
       }}
     >
       {children}

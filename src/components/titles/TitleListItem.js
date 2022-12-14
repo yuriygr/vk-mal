@@ -1,7 +1,8 @@
 import React from 'react';
-import { Title, Subhead, Card, Progress, Paragraph } from '@vkontakte/vkui';
-import { Icon12Favorite } from '@vkontakte/icons';
-import formatEntry from  "../../services/format"
+import { Title, Subhead, Card, Progress, Paragraph } from '@vkontakte/vkui'
+import { Icon12Favorite } from '@vkontakte/icons'
+
+import formatEntry from  '@services/format'
 
 const TitleListItem = ({ data, onClick } ) => {
   const entry = formatEntry(data)

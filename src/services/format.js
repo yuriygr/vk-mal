@@ -10,9 +10,8 @@ const formatEntry = (data) => {
     )
   }
 
-  // Да, мокап!
   const cover = () => {
-    return "https://cdn.myanimelist.net/r/192x272/images/anime/12/39497.webp?s=0ae299ba10f68551842e8b3108a498f5"
+    return data.cover || ""
   }
 
   const airing_status = () => {
