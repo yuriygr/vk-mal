@@ -1,7 +1,5 @@
-import OverviewSuggestPanel from './suggest.js';
-import OverviewHelloPanel from './hello.js';
+import OverviewSuggestPanel from './suggest.js'
 
 export {
-    OverviewSuggestPanel,
-    OverviewHelloPanel
+    OverviewSuggestPanel
 }

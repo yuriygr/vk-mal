@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { Cell, Footer, Group, Header, List, Panel, PanelHeader, SimpleCell, Switch } from '@vkontakte/vkui'
-import { Icon28ArrowDownToSquareOutline, Icon28BracketsSlashSquareOutline, Icon28BugOutline, Icon28HieroglyphCharacterOutline, Icon28HorseToyOutline, Icon28MoneyCircleOutline, Icon28QuestionOutline } from '@vkontakte/icons';
+import { Icon24ExternalLinkOutline, Icon28ArrowDownToSquareOutline, Icon28BracketsSlashSquareOutline, Icon28BugOutline, Icon28HieroglyphCharacterOutline, Icon28HorseToyOutline, Icon28MoneyCircleOutline, Icon28QuestionOutline, Icon28ShareExternalOutline } from '@vkontakte/icons';
 
 import { Stories, Views, Panels } from  '@services/const'
 import PreferencesContext from '@contexts/preferences'
@@ -13,7 +13,7 @@ const EtcPanel = ({ methods }) => {
   }
 
   const version = 
-    `Версия 1.8`
+    `Версия 1.8.6`
 
   return (
     <Panel>
@@ -41,7 +41,7 @@ const EtcPanel = ({ methods }) => {
               Проверочная
             </Cell>
           }
-          <SimpleCell before={<Icon28BracketsSlashSquareOutline />} component="a" target="_blank" href="https://github.com/yuriygr/vk-mal">Исходный код</SimpleCell>
+          <SimpleCell before={<Icon28BracketsSlashSquareOutline />} after={<Icon24ExternalLinkOutline color='var(--vkui--color_icon_tertiary)' />} component="a" target="_blank" href="https://github.com/yuriygr/vk-mal">Исходный код</SimpleCell>
         </List>
       </Group>
       <Footer>{ version }</Footer>

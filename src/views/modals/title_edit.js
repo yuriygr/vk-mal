@@ -1,16 +1,16 @@
 import React, { useContext, useState } from 'react'
 import {
   Platform, withModalRootContext, Slider, FormItem,
-  ModalPage, Group, Header, ModalPageHeader, PanelHeaderButton, PanelHeaderSubmit, CellButton, usePlatform, SubnavigationButton, DateInput, Counter, Alert, Snackbar, Avatar, Button
+  ModalPage, Group, Header, ModalPageHeader, PanelHeaderButton, PanelHeaderSubmit, CellButton, usePlatform, SubnavigationButton, DateInput, Counter, Alert, Snackbar, Avatar
 } from '@vkontakte/vkui'
 import { Icon16Done, Icon20TrashSmileOutline, Icon24Cancel, Icon24Dismiss } from '@vkontakte/icons'
 
 import { SubnavigationGrid } from '@components/ui'
 import PreferencesContext from "@contexts/preferences"
-import { LIST_TABS, TABS_ANIME, Modals } from '@services/const'
+import { LIST_TABS, TABS_ANIME } from '@services/const'
 import Api from '@services/api'
 
-const ModalPageTitleEdit = ({ data, updateData, methods }) => {
+const ModalPageTitleEdit = ({ id, data, updateData, methods }) => {
   const platform = usePlatform()
   const preferences = useContext(PreferencesContext)
 
@@ -90,7 +90,7 @@ const ModalPageTitleEdit = ({ data, updateData, methods }) => {
   )
 
   return (
-    <ModalPage id={Modals.TitleEdit}
+    <ModalPage id={id}
       header={
         <ModalPageHeader
           before={(

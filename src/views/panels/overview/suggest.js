@@ -9,14 +9,15 @@ import { TitleThumb } from '@components/titles'
 import { Modals } from "@services/const"
 import Api from "@services/api"
 
-const SuggestPanel = ({ methods }) => {
+const SuggestPanel = ({ methods, filters }) => {
   const [ data, setData ] = useState(false)
   const [ gradient, setGradient ] = useState("")
   const [ fetching, setFetching ] = useState(false)
 
   const fetchSuggest = () => {
     setFetching(true)
-    Api.my.suggest()
+
+    Api.my.suggest(filters)
     .then(data => {
       setData(data)
       setFetching(false)
@@ -89,7 +90,7 @@ const SuggestPanel = ({ methods }) => {
           { fetching && <PanelSpinner /> }
           { !fetching && data &&
             <React.Fragment>
-              <TitleThumb key={data.id} data={data} onClick={() => methods.fetchTitle(data)} />
+              <TitleThumb key={data.id} data={data} onClick={() => methods.openTitle(data)} />
               <ButtonGroup stretched>
                 <Button size="l" appearance="overlay" mode="secondary" stretched onClick={refresh}><Icon24Switch /></Button>
                 <Button size="l" appearance="overlay" mode="secondary" onClick={filter}><Icon24Filter /></Button>

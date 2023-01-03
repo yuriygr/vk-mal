@@ -1,9 +1,9 @@
 import ModalPageTitleEdit from './title_edit.js';
-import ModalPageSearchFilter from './search_filter.js';
+import ModalPageEntriesFilter from './entries_filter.js';
 import ModalPageSuggestFilter from './suggest_filter.js';
 
 export {
     ModalPageTitleEdit,
-    ModalPageSearchFilter,
+    ModalPageEntriesFilter,
     ModalPageSuggestFilter
 }

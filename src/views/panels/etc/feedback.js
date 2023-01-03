@@ -34,7 +34,7 @@ const FeedbackPanel = ({ methods }) => {
 
   const alert_success = text => {
     let actions = [
-      { title: 'Закрыть', autoClose: true, mode: 'default', action: methods.storyBack },
+      { title: 'Закрыть', autoClose: true, mode: 'default', action: methods.viewPanelBack },
     ]
     return <Alert
       actionsLayout="horizontal"

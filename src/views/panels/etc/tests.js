@@ -42,7 +42,7 @@ const TestsPanel = ({ methods }) => {
           <FormItem top="Данные контекста предпочтений">
             <pre>{JSON.stringify(preferences, null, 2) }</pre>
           </FormItem>
-          </FormLayout>
+        </FormLayout>
       </Group>
   
       <Group>

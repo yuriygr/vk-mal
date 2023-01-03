@@ -1,5 +1,7 @@
-import GenreThumb from './GenreThumb.js';
+import GenreThumb from './thumb.js';
+import GenreList from './list.js';
 
 export {
-    GenreThumb
+    GenreThumb,
+    GenreList
 }

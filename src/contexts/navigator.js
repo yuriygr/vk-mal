@@ -8,7 +8,7 @@ import bridge from '@vkontakte/vk-bridge';
  * Моя собственная реализация навигации между экртанами.
  * Да, не идеально, но мои потребности покрывает на все сто, о-о-о.
  * 
- * @version 1.0.4
+ * @version 1.0.5
  */
 const NavigationContext = React.createContext(null)
 
@@ -19,6 +19,7 @@ export const NavigationProvider = ({ children }) => {
   const [viewActivePanels, setViewActivePanels] = useState(DefaultNavigationState.viewActivePanels)
 
   const [activeModal, setActiveModal] = useState(null)
+  const [modalsProps, setModalsProps] = useState([])
 
   const [storyHistory, setStoryHistory] = useState(DefaultNavigationState.storyHistory)
   const [viewsHistory, setViewsHistory] = useState(DefaultNavigationState.viewsHistory)
@@ -65,7 +66,7 @@ export const NavigationProvider = ({ children }) => {
    * Открытие модального окна
    * @param {string} activeModal Активное модальное окно
    */
-  const openModal = (_modal = null) => {
+  const openModal = (_modal = null, props = {}) => {
     let _modalHistory = modalHistory ? [...modalHistory] : [];
   
     if (_modal === null) {
@@ -78,6 +79,7 @@ export const NavigationProvider = ({ children }) => {
 
     setModalHistory(_modalHistory)
     setActiveModal(_modal)
+    setModalsProps({ [_modal]: props })
   }
 
   /**
@@ -87,6 +89,10 @@ export const NavigationProvider = ({ children }) => {
    */
   const activeView = (_story = activeStory) => {
     return activeViews[_story]
+  }
+
+  const activeModalProps = (_modal = activeModal) => {
+    return modalsProps[_modal]
   }
 
   /**
@@ -136,7 +142,10 @@ export const NavigationProvider = ({ children }) => {
     <NavigationContext.Provider
       value={{
         activeStory,
+        storyHistory,
+
         activeModal,
+        activeModalProps,
 
         activeView,
         viewHistory,

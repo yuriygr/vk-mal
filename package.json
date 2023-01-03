@@ -1,15 +1,15 @@
 {
   "name": "vk-mal",
   "homepage": "./",
-  "version": "0.1.8",
+  "version": "1.8.6",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.5.0",
     "@testing-library/user-event": "^7.2.1",
-    "@vkontakte/icons": "^2.0.1",
+    "@vkontakte/icons": "^2.1.1",
     "@vkontakte/vk-bridge": "^2.6.4",
-    "@vkontakte/vkui": "^5.0.1",
+    "@vkontakte/vkui": "^5.0.3",
     "axios": "^0.21.1",
     "prop-types": "^15.7.2",
     "react": "^17.0.2",

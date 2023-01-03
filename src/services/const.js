@@ -1,7 +1,6 @@
 export const Stories = {
   Main:     'main_story',
-  Title:    'title_story',
-  Secret:   'secret_story',
+  Title:    'title_story'
 }
 
 export const Views = {
@@ -26,8 +25,7 @@ export const Panels = {
   Main: {
     Overview: {
       Main:    'main_overview_main',
-      Suggest: 'main_overview_suggest',
-      Hello:   'main_overview_hello'
+      Suggest: 'main_overview_suggest'
     },
   
     Search: {
@@ -52,7 +50,8 @@ export const Panels = {
 export const Modals = {
   TitleEdit:     'modal_title_edit',
   SearchFilter:  'modal_search_filter',
-  SuggestFilter: 'modal_suggest_filter'
+  SuggestFilter: 'modal_suggest_filter',
+  ListFilter:    'modal_list_filter'
 }
 
 

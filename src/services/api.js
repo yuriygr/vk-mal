@@ -14,6 +14,23 @@ const helpers = {
   },
   prepareGetData: (params) => {
     return new URLSearchParams(params).toString()
+  },
+  /**
+  * Скажу сразу, мне это все пиздец не нравится, так же как и вам.
+  * Вот эта вот тупая заморозка параметров, ковыряение тегов, удаление устых полей объекта
+  * По этому если есть желание - поправьте меня
+  */
+  prepareFiltersData: (params) => {
+    let _params = Object.assign({}, params)
+
+    _params.tags = _params.tags.map(x => x.value)
+
+    Object.keys(_params).forEach(item => {
+      if (_params[item] === '') {
+        delete _params[item]
+      }
+    })
+    return new URLSearchParams(_params).toString()
   }
 }
 
@@ -82,9 +99,9 @@ const catalog = {
   genre: (id) => {
   
   },
-  search: (params = {}) => {
-    let data = helpers.prepareGetData(params)
-    return instance.get(`/catalog/search?${data}`)
+  search: (params = {}, filters = {}) => {
+    let data = helpers.prepareFiltersData(filters)
+    return instance.get(`/catalog/${params.type}-search?query=${params.query}&${data}`)
   }
 }
 
@@ -95,13 +112,14 @@ const my = {
   overview: () => {
     return instance.get(`/my/overview`)
   },
-  suggest: () => {
-    return instance.get(`/my/suggest`)
+  suggest: (filters = {}) => {
+    let data = helpers.prepareGetData(filters)
+    return instance.get(`/my/suggest?${data}`)
   },
   list: {
-    get: (type, params) => {
-      let data = helpers.prepareGetData(params)
-      return instance.get(`/my/${type}-list?${data}`)
+    get: (params = {}, filters = {}) => {
+      let data = helpers.prepareFiltersData(filters)
+      return instance.get(`/my/${params.type}-list?list=${params.list}&${data}`)
     },
     update: (type, id, params) => {
       let [formData, headers] = helpers.preparePostData(params)
@@ -112,7 +130,6 @@ const my = {
     }
   }
 }
-
 
 export default {
   auth, content, catalog, my
